@@ -10,6 +10,8 @@ class DefaultController extends CController
     public $layout = 'main';
     public $summary;
 
+    private $_manifest;
+
     /**
      * @return Yii2Debug
      */
@@ -24,7 +26,7 @@ class DefaultController extends CController
     public function actionIndex()
     {
         $this->render('index', array(
-            'manifest' => $this->getManifest(),
+            'manifest' => $this->_getManifest(),
         ));
     }
 
@@ -36,11 +38,11 @@ class DefaultController extends CController
     public function actionView($tag = null, $panel = null)
     {
         if ($tag === null) {
-            $tags = array_keys($this->getManifest());
+            $tags = array_keys($this->_getManifest());
             $tag = reset($tags);
         }
-        $this->loadData($tag);
-        if (isset($this->component->panels[$panel])) {
+        $this->_loadData($tag);
+        if (isset($this->getComponent()->panels[$panel])) {
             $activePanel = $this->getComponent()->panels[$panel];
         } else {
             $activePanel = $this->getComponent()->panels['request'];
@@ -48,7 +50,7 @@ class DefaultController extends CController
         $this->render('view', array(
             'tag' => $tag,
             'summary' => $this->summary,
-            'manifest' => $this->getManifest(),
+            'manifest' => $this->_getManifest(),
             'panels' => $this->getComponent()->panels,
             'activePanel' => $activePanel,
         ));
@@ -61,7 +63,7 @@ class DefaultController extends CController
      */
     public function actionToolbar($tag)
     {
-        $this->loadData($tag);
+        $this->_loadData($tag);
         $this->renderPartial('toolbar', array(
             'panels' => $this->getComponent()->panels,
         ));
@@ -72,13 +74,11 @@ class DefaultController extends CController
         phpinfo();
     }
 
-    private $_manifest;
-
-    protected function getManifest()
+    protected function _getManifest()
     {
         if ($this->_manifest === null) {
             $path = $this->getComponent()->logPath;
-            $indexFile = "$path/index.json";
+            $indexFile = $path . '/index.json';
             if (is_file($indexFile)) {
                 $this->_manifest = array_reverse(json_decode(file_get_contents($indexFile), true), true);
             } else {
@@ -89,9 +89,9 @@ class DefaultController extends CController
         return $this->_manifest;
     }
 
-    protected function loadData($tag)
+    protected function _loadData($tag)
     {
-        $manifest = $this->getManifest();
+        $manifest = $this->_getManifest();
         if (isset($manifest[$tag])) {
             $path = $this->getComponent()->logPath;
             $dataFile = "$path/$tag.json";
@@ -107,7 +107,7 @@ class DefaultController extends CController
             }
             $this->summary = $data['summary'];
         } else {
-            throw new CHttpException(404, "Unable to find debug data tagged with '$tag'.");
+            throw new CHttpException(404, 'Unable to find debug data tagged with \'' . $tag . '\'.');
         }
     }
 }

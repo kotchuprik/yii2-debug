@@ -82,7 +82,7 @@ class Yii2Debug extends CApplicationComponent
             ),
         )));
 
-        Yii::app()->attachEventHandler('onEndRequest', array($this, 'onEndRequest'));
+        Yii::app()->attachEventHandler('onEndRequest', array($this, '_onEndRequest'));
         $this->initToolbar();
     }
 
@@ -128,9 +128,9 @@ class Yii2Debug extends CApplicationComponent
     public function initToolbar()
     {
         if (!$this->checkAccess()) {
-            return;
+            return null;
         }
-        $assetsUrl = CHtml::asset(dirname(__FILE__) . '/assets');
+
         /* @var CClientScript $cs */
         $cs = Yii::app()->getClientScript();
         $cs->registerCoreScript('jquery');
@@ -168,22 +168,22 @@ JS
     /**
      * @param CEvent $event
      */
-    protected function onEndRequest($event)
+    protected function _onEndRequest($event)
     {
-        $this->processDebug();
+        $this->_processDebug();
     }
 
     /**
      * Запись отладочной информации
      */
-    protected function processDebug()
+    protected function _processDebug()
     {
         $path = $this->logPath;
         if (!is_dir($path)) {
             mkdir($path);
         }
 
-        $indexFile = "$path/index.json";
+        $indexFile = $path . '/index.json';
         $manifest = array();
         if (is_file($indexFile)) {
             $manifest = json_decode(file_get_contents($indexFile), true);
@@ -197,9 +197,9 @@ JS
             'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1',
             'time' => time(),
         );
-        $this->resizeHistory($manifest);
+        $this->_resizeHistory($manifest);
 
-        $dataFile = "$path/{$this->getTag()}.json";
+        $dataFile = $path . '/' . $this->getTag() . '.json';
         $data = array();
         foreach ($this->panels as $panel) {
             $data[$panel->id] = $panel->save();
@@ -216,7 +216,7 @@ JS
      *
      * @param $manifest
      */
-    protected function resizeHistory(&$manifest)
+    protected function _resizeHistory(&$manifest)
     {
         if (count($manifest) > $this->historySize + 10) {
             $path = $this->logPath;
@@ -239,10 +239,8 @@ JS
     {
         $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
         foreach ($this->allowedIPs as $filter) {
-            if ($filter === '*' || $filter === $ip || (
-                            ($pos = strpos($filter, '*')) !== false &&
-                            !strncmp($ip, $filter, $pos)
-                    )
+            if ($filter === '*' || $filter === $ip ||
+                (($pos = strpos($filter, '*')) !== false && !strncmp($ip, $filter, $pos))
             ) {
                 return true;
             }

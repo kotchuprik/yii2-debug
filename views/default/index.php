@@ -3,7 +3,6 @@
  * @var DefaultController $this
  * @var array $manifest
  */
-
 $this->pageTitle = 'Yii Debugger';
 ?>
 <div class="default-index">
