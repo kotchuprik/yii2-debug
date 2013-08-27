@@ -238,8 +238,7 @@ JS
     {
         $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
         foreach ($this->allowedIPs as $filter) {
-            if (
-                    $filter === '*' || $filter === $ip || (
+            if ($filter === '*' || $filter === $ip || (
                             ($pos = strpos($filter, '*')) !== false &&
                             !strncmp($ip, $filter, $pos)
                     )

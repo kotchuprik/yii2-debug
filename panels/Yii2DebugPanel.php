@@ -5,10 +5,12 @@
  * Он определяет как информация будет сохраняться и выводиться на просмотр.
  *
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
+ * @author Constantin Chuprik <constantinchuprik@gmail.com>
+ *
  * @package Yii2Debug
  * @since 1.1.13
  */
-class Yii2DebugPanel extends CComponent
+abstract class Yii2DebugPanel extends CComponent
 {
     /**
      * @var string id страницы
@@ -34,35 +36,23 @@ class Yii2DebugPanel extends CComponent
     /**
      * @return string название панели для вывода в меню
      */
-    public function getName()
-    {
-        return '';
-    }
+    abstract public function getName();
 
     /**
      * @return string html-контент для вывода в дебаг-панель
      */
-    public function getSummary()
-    {
-        return '';
-    }
+    abstract public function getSummary();
 
     /**
      * @return string html-контент для вывода на страницу
      */
-    public function getDetail()
-    {
-        return '';
-    }
+    abstract public function getDetail();
 
     /**
      * Базовый метод для сбора отладочной информации
      * @return mixed
      */
-    public function save()
-    {
-        return null;
-    }
+    abstract public function save();
 
     public function load($data)
     {
