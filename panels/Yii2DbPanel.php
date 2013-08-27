@@ -1,6 +1,7 @@
 <?php
 /**
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
+ * @author Constantin Chuprik <constantinchuprik@gmail.com>
  * @package Yii2Debug
  * @since 1.1.13
  */
