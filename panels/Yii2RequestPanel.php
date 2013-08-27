@@ -1,12 +1,14 @@
 <?php
-
 /**
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
+ * @author Constantin Chuprik <constantinchuprik@gmail.com>
  * @package Yii2Debug
  * @since 1.1.13
  */
 class Yii2RequestPanel extends Yii2DebugPanel
 {
+    private $_statusCode;
+
     public function getName()
     {
         return 'Request';
@@ -47,29 +49,29 @@ HTML;
             'Parameters' => $this->data['actionParams'],
         );
 
-        return $this->renderTabs(array(
+        return $this->_renderTabs(array(
             array(
                 'label' => 'Parameters',
-                'content' => $this->renderDetail('Routing', $data)
-                             . $this->renderDetail('$_GET', $this->data['GET'])
-                             . $this->renderDetail('$_POST', $this->data['POST'])
-                             . $this->renderDetail('$_FILES', $this->data['FILES'])
-                             . $this->renderDetail('$_COOKIE', $this->data['COOKIE']),
+                'content' => $this->_renderDetail('Routing', $data)
+                             . $this->_renderDetail('$_GET', $this->data['GET'])
+                             . $this->_renderDetail('$_POST', $this->data['POST'])
+                             . $this->_renderDetail('$_FILES', $this->data['FILES'])
+                             . $this->_renderDetail('$_COOKIE', $this->data['COOKIE']),
                 'active' => true,
             ),
             array(
                 'label' => 'Headers',
-                'content' => $this->renderDetail('Request Headers', $this->data['requestHeaders'])
-                             . $this->renderDetail('Response Headers', $this->data['responseHeaders']),
+                'content' => $this->_renderDetail('Request Headers', $this->data['requestHeaders'])
+                             . $this->_renderDetail('Response Headers', $this->data['responseHeaders']),
             ),
             array(
                 'label' => 'Session',
-                'content' => $this->renderDetail('$_SESSION', $this->data['SESSION'])
-                             . $this->renderDetail('Flashes', $this->data['flashes']),
+                'content' => $this->_renderDetail('$_SESSION', $this->data['SESSION'])
+                             . $this->_renderDetail('Flashes', $this->data['flashes']),
             ),
             array(
                 'label' => '$_SERVER',
-                'content' => $this->renderDetail('$_SERVER', $this->data['SERVER']),
+                'content' => $this->_renderDetail('$_SERVER', $this->data['SERVER']),
             ),
         ));
     }
@@ -83,6 +85,7 @@ HTML;
         } else {
             $requestHeaders = array();
         }
+
         $responseHeaders = array();
         foreach (headers_list() as $header) {
             if (($pos = strpos($header, ':')) !== false) {
@@ -107,9 +110,8 @@ HTML;
         $actionParams = array();
         if (($ca = Yii::app()->createController($route)) !== null) {
             /* @var CController $controller */
-            /* @var string $actionID */
             list($controller, $actionID) = $ca;
-            if (!$actionID) {
+            if (empty($actionID)) {
                 $actionID = $controller->defaultAction;
             }
             if (($a = $controller->createAction($actionID)) !== null) {
@@ -142,8 +144,6 @@ HTML;
         );
     }
 
-    private $_statusCode;
-
     /**
      * @return int|null
      */
@@ -151,22 +151,22 @@ HTML;
     {
         if (function_exists('http_response_code')) {
             return http_response_code();
-        } else {
-            return $this->_statusCode;
         }
+
+        return $this->_statusCode;
     }
 
     public function __construct()
     {
         if (!function_exists('http_response_code')) {
-            Yii::app()->attachEventHandler('onException', array($this, 'onException'));
+            Yii::app()->attachEventHandler('onException', array($this, '_onException'));
         }
     }
 
     /**
      * @param CExceptionEvent $event
      */
-    protected function onException($event)
+    protected function _onException($event)
     {
         if ($event->exception instanceof CHttpException) {
             $this->_statusCode = $event->exception->statusCode;

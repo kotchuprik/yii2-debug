@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
  * @package Yii2Debug
@@ -12,6 +11,15 @@ class Yii2DbPanel extends Yii2DebugPanel
      */
     public $insertParamValues = true;
 
+    private $_timings;
+
+    private $_resume;
+
+    /**
+     * @var CTextHighlighter
+     */
+    private $_hl;
+
     public function getName()
     {
         return 'Database';
@@ -19,7 +27,7 @@ class Yii2DbPanel extends Yii2DebugPanel
 
     public function getSummary()
     {
-        $timings = $this->calculateTimings();
+        $timings = $this->_calculateTimings();
         $queryCount = count($timings);
         $queryTime = 0;
         foreach ($timings as $timing) {
@@ -40,47 +48,71 @@ HTML;
 
     public function getDetail()
     {
-        $queriesCount = count($this->calculateTimings());
-        $resumeCount = count($this->calculateResume());
+        $queriesCount = count($this->_calculateTimings());
+        $resumeCount = count($this->_calculateResume());
         $connectionsCount = count($this->data['connections']);
 
-        return $this->renderTabs(array(
+        return $this->_renderTabs(array(
             array(
-                'label' => "Queries ($queriesCount)",
-                'content' => $this->getQueriesDetail(),
+                'label' => 'Queries (' . $queriesCount . ')',
+                'content' => $this->_getQueriesDetail(),
                 'active' => true,
             ),
             array(
-                'label' => "Resume ($resumeCount)",
-                'content' => $this->getResumeDetail(),
+                'label' => 'Resume (' . $resumeCount . ')',
+                'content' => $this->_getResumeDetail(),
             ),
             array(
-                'label' => "Connections ($connectionsCount)",
-                'content' => $this->getConnectionsDetail(),
-            )
+                'label' => 'Connections (' . $connectionsCount . ')',
+                'content' => $this->_getConnectionsDetail(),
+            ),
         ));
+    }
+
+    public function save()
+    {
+        $messages = Yii::getLogger()->getLogs(CLogger::LEVEL_PROFILE, 'system.db.CDbCommand.*');
+
+        $connections = array();
+        foreach (Yii::app()->getComponents() as $id => $component) {
+            if ($component instanceof CDbConnection) {
+                /* @var CDbConnection $component */
+                $connections[$id] = array(
+                    'class' => get_class($component),
+                    'driver' => $component->getDriverName(),
+                    'server' => $component->getServerVersion(),
+                    'info' => $component->getServerInfo(),
+                );
+            }
+        }
+
+        return array(
+            'messages' => $messages,
+            'connections' => $connections,
+        );
     }
 
     /**
      * @return string html-контент закладки со списком sql-запросов
      */
-    protected function getQueriesDetail()
+    protected function _getQueriesDetail()
     {
         $rows = array();
-        foreach ($this->calculateTimings() as $timing) {
+        foreach ($this->_calculateTimings() as $timing) {
             $time = $timing[3];
             $time = date('H:i:s.', $time) . sprintf('%03d', (int)(($time - (int)$time) * 1000));
             $duration = sprintf('%.1f ms', $timing[4] * 1000);
-            $procedure = $this->formatSql($timing[1]);
+            $procedure = $this->_formatSql($timing[1]);
             if ($this->highlightCode) {
-                $procedure = $this->highlightSql($procedure);
+                $procedure = $this->_highlightSql($procedure);
             } else {
                 $procedure = CHtml::encode($procedure);
             }
-            $rows[] =
-                    "<tr><td style=\"width: 100px;\">$time</td><td style=\"width: 80px;\">$duration</td><td>$procedure</td>";
+            $rows[] = '<tr><td style="width: 100px;">' . $time .
+                      '</td><td style="width: 80px;">' . $duration .
+                      '</td><td>' . $procedure . '</td>';
         }
-        $rows = implode("\n", $rows);
+        $rows = implode(PHP_EOL, $rows);
 
         return <<<HTML
 <table class="table table-condensed table-bordered table-striped table-hover table-filtered" style="table-layout: fixed;">
@@ -101,15 +133,15 @@ HTML;
     /**
      * @return string html-контент закладки с группировкой sql-запросов
      */
-    protected function getResumeDetail()
+    protected function _getResumeDetail()
     {
         $rows = array();
         $num = 0;
-        foreach ($this->calculateResume() as $item) {
+        foreach ($this->_calculateResume() as $item) {
             $num++;
             list($query, $count, $total, $min, $max) = $item;
             if ($this->highlightCode) {
-                $query = $this->highlightSql($query);
+                $query = $this->_highlightSql($query);
             } else {
                 $query = CHtml::encode($query);
             }
@@ -129,7 +161,7 @@ HTML;
 </tr>
 HTML;
         }
-        $rows = implode("\n", $rows);
+        $rows = implode(PHP_EOL, $rows);
 
         return <<<HTML
 <table class="table table-condensed table-bordered table-striped table-hover table-filtered" style="table-layout: fixed;">
@@ -155,40 +187,39 @@ HTML;
      * @return string html-контент закладки с детальной информацией активных
      * подключений к базам данных
      */
-    protected function getConnectionsDetail()
+    protected function _getConnectionsDetail()
     {
         $content = '';
         foreach ($this->data['connections'] as $id => $connection) {
-            $caption = "Component: $id ($connection[class])";
+            $caption = 'Component: ' . $id . '(' . $connection . '[class])';
             unset($connection['class']);
             foreach (explode('  ', $connection['info']) as $line) {
                 list($key, $value) = explode(': ', $line, 2);
                 $connection[$key] = $value;
             }
             unset($connection['info']);
-            $content .= $this->renderDetail($caption, $connection);
+            $content .= $this->_renderDetail($caption, $connection);
         }
 
         return $content;
     }
-
-    private $_timings;
 
     /**
      * Группировка времени выполнения sql-запросов
      *
      * @return array
      */
-    protected function calculateTimings()
+    protected function _calculateTimings()
     {
         if ($this->_timings !== null) {
             return $this->_timings;
         }
+
         $messages = $this->data['messages'];
         $timings = array();
         $stack = array();
         foreach ($messages as $i => $log) {
-            list($token, $level, $category, $timestamp) = $log;
+            list($token, , $category, $timestamp) = $log;
             $log[4] = $i;
             if (strpos($token, 'begin:') === 0) {
                 $log[0] = $token = substr($token, 6);
@@ -200,6 +231,7 @@ HTML;
                 }
             }
         }
+
         $now = microtime(true);
         while (($last = array_pop($stack)) !== null) {
             $delta = $now - $last[3];
@@ -210,22 +242,20 @@ HTML;
         return $this->_timings = $timings;
     }
 
-    private $_resume;
-
     /**
      * Группировка sql-запросов
      *
      * @return array
      */
-    protected function calculateResume()
+    protected function _calculateResume()
     {
         if ($this->_resume !== null) {
             return $this->_resume;
         }
         $resume = array();
-        foreach ($this->calculateTimings() as $timing) {
+        foreach ($this->_calculateTimings() as $timing) {
             $duration = $timing[4];
-            $query = $this->formatSql($timing[1]);
+            $query = $this->_formatSql($timing[1]);
             $key = md5($query);
             if (!isset($resume[$key])) {
                 $resume[$key] = array($query, 1, $duration, $duration, $duration);
@@ -240,12 +270,12 @@ HTML;
                 }
             }
         }
-        usort($resume, array($this, 'compareResume'));
+        usort($resume, array($this, '_compareResume'));
 
         return $this->_resume = $resume;
     }
 
-    private function compareResume($a, $b)
+    private function _compareResume($a, $b)
     {
         if ($a[2] == $b[2]) {
             return 0;
@@ -261,7 +291,7 @@ HTML;
      *
      * @return string
      */
-    protected function formatSql($message)
+    protected function _formatSql($message)
     {
         $sqlStart = strpos($message, '(') + 1;
         $sqlEnd = strrpos($message, ')');
@@ -271,7 +301,7 @@ HTML;
             if (!$this->insertParamValues) {
                 return $query;
             }
-            $sql = strtr($query, $this->parseParamsSql($params));
+            $sql = strtr($query, $this->_parseParamsSql($params));
         }
 
         return $sql;
@@ -283,7 +313,7 @@ HTML;
      *
      * @return array key/value
      */
-    private function parseParamsSql($params)
+    private function _parseParamsSql($params)
     {
         $binds = array();
         $pos = 0;
@@ -317,18 +347,13 @@ HTML;
     }
 
     /**
-     * @var CTextHighlighter
-     */
-    private $_hl;
-
-    /**
      * Подсветка sql-кода
      *
      * @param string $sql
      *
      * @return string
      */
-    protected function highlightSql($sql)
+    protected function _highlightSql($sql)
     {
         if ($this->_hl === null) {
             $this->_hl = Yii::createComponent(array(
@@ -340,28 +365,5 @@ HTML;
         $html = $this->_hl->highlight($sql);
 
         return strip_tags($html, '<div>,<span>');
-    }
-
-    public function save()
-    {
-        $messages = Yii::getLogger()->getLogs(CLogger::LEVEL_PROFILE, 'system.db.CDbCommand.*');
-
-        $connections = array();
-        foreach (Yii::app()->getComponents() as $id => $component) {
-            if ($component instanceof CDbConnection) {
-                /* @var CDbConnection $component */
-                $connections[$id] = array(
-                    'class' => get_class($component),
-                    'driver' => $component->getDriverName(),
-                    'server' => $component->getServerVersion(),
-                    'info' => $component->getServerInfo(),
-                );
-            }
-        }
-
-        return array(
-            'messages' => $messages,
-            'connections' => $connections,
-        );
     }
 }

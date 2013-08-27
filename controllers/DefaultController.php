@@ -1,7 +1,7 @@
 <?php
-
 /**
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
+ * @author Constantin Chuprik <constantinchuprik@gmail.com>
  * @package Yii2Debug
  * @since 1.1.13
  */
@@ -63,7 +63,6 @@ class DefaultController extends CController
     {
         $this->loadData($tag);
         $this->renderPartial('toolbar', array(
-            'tag' => $tag,
             'panels' => $this->getComponent()->panels,
         ));
     }

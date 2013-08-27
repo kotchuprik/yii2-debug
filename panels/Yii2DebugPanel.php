@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Yii2DebugPanel - базовый класс для страниц с отладочной информацией.
  * Он определяет как информация будет сохраняться и выводиться на просмотр.
@@ -32,6 +31,11 @@ abstract class Yii2DebugPanel extends CComponent
      * @var bool|null подчветка кода. По умолчанию Yii2Debug::$highlightCode
      */
     public $highlightCode;
+
+    /**
+     * @var CTextHighlighter
+     */
+    private $_hl;
 
     /**
      * @return string название панели для вывода в меню
@@ -78,7 +82,7 @@ abstract class Yii2DebugPanel extends CComponent
      *
      * @return string
      */
-    protected function renderDetail($caption, $values)
+    protected function _renderDetail($caption, $values)
     {
         if (empty($values)) {
             return "<h3>$caption</h3>\n<p>Empty.</p>";
@@ -88,7 +92,7 @@ abstract class Yii2DebugPanel extends CComponent
             if (is_string($value)) {
                 $value = CHtml::encode($value);
             } elseif ($this->highlightCode) {
-                $value = $this->highlightPhp(var_export($value, true));
+                $value = $this->_highlightPhp(var_export($value, true));
             } else {
                 $value = CHtml::encode(var_export($value, true));
             }
@@ -111,18 +115,13 @@ HTML;
     }
 
     /**
-     * @var CTextHighlighter
-     */
-    private $_hl;
-
-    /**
      * Подсветка php-кода
      *
      * @param string $code
      *
      * @return string
      */
-    protected function highlightPhp($code)
+    protected function _highlightPhp($code)
     {
         if ($this->_hl === null) {
             $this->_hl = Yii::createComponent(array(
@@ -142,24 +141,24 @@ HTML;
      *
      * @return string
      */
-    protected function renderTabs($items)
+    protected function _renderTabs($items)
     {
         static $counter = 0;
         $counter++;
-        $id = "tabs$counter";
+        $id = 'tabs' . $counter;
 
         $tabs = '';
         foreach ($items as $num => $item) {
             $tabs .= CHtml::tag('li', array(
                     'class' => isset($item['active']) && $item['active'] ? 'active' : ''
-                ), CHtml::link($item['label'], "#$id-tab$num", array('data-toggle' => 'tab'))
+                ), CHtml::link($item['label'], '#' . $id . '-tab' . $num, array('data-toggle' => 'tab'))
             );
         }
 
         $details = '';
         foreach ($items as $num => $item) {
             $details .= CHtml::tag('div', array(
-                    'id' => "$id-tab$num",
+                    'id' => $id . '-tab' . $num,
                     'class' => 'tab-pane' . (isset($item['active']) && $item['active'] ? ' active' : ''),
                 ), $item['content']
             );

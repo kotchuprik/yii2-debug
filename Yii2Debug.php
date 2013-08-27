@@ -6,6 +6,7 @@
  * @property string $tag
  *
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
+ * @author Constantin Chuprik <constantinchuprik@gmail.com>
  * @package Yii2Debug
  * @since 1.1.13
  */
@@ -51,7 +52,7 @@ class Yii2Debug extends CApplicationComponent
     {
         parent::init();
         if (!$this->enabled) {
-            return;
+            return null;
         }
 
         Yii::setPathOfAlias('yii2-debug', dirname(__FILE__));

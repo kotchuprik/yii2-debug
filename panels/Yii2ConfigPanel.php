@@ -1,7 +1,7 @@
 <?php
-
 /**
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
+ * @author Constantin Chuprik <constantinchuprik@gmail.com>
  * @package Yii2Debug
  * @since 1.1.13
  */
@@ -21,7 +21,7 @@ class Yii2ConfigPanel extends Yii2DebugPanel
     {
         $yiiLogo = $this->getYiiLogo();
         $url = $this->getUrl();
-        $phpUrl = Yii::app()->getUrlManager()->createUrl($this->component->moduleId . '/default/phpinfo');
+        $phpUrl = Yii::app()->createUrl($this->component->moduleId . '/default/phpinfo');
 
         return <<<HTML
 <div class="yii2-debug-toolbar-block">
@@ -50,9 +50,9 @@ HTML;
             'Memcache' => $this->data['php']['memcache'] ? 'Enabled' : 'Disabled',
         );
 
-        return $this->renderDetail('Application Configuration', $app) . "\n"
-               . $this->renderDetail('PHP Configuration', $php) . "\n"
-               . '<div>' . CHtml::link('phpinfo()', array('phpinfo'), array('class' => 'btn btn-info')) . "</div>\n";
+        return $this->_renderDetail('Application Configuration', $app) .
+               $this->_renderDetail('PHP Configuration', $php) .
+               CHtml::tag('div', array(), CHtml::link('phpinfo()', array('phpinfo'), array('class' => 'btn btn-info')));
     }
 
     public function save()

@@ -1,7 +1,7 @@
 <?php
-
 /**
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
+ * @author Constantin Chuprik <constantinchuprik@gmail.com>
  * @package Yii2Debug
  * @since 1.1.13
  */
@@ -34,7 +34,7 @@ HTML;
         $timings = array();
         $stack = array();
         foreach ($messages as $i => $log) {
-            list($token, $level, $category, $timestamp) = $log;
+            list($token, , $category, $timestamp) = $log;
             $log[4] = $i;
             if (strpos($token, 'begin:') === 0) {
                 $log[0] = $token = substr($token, 6);
@@ -58,10 +58,11 @@ HTML;
             $time = sprintf('%.1f ms', $timing[3] * 1000);
             $procedure = str_repeat('<span class="indent">→</span>', $timing[0]) . CHtml::encode($timing[1]);
             $category = CHtml::encode($timing[2]);
-            $rows[] =
-                    "<tr><td style=\"width: 80px;\">$time</td><td style=\"width: 220px;\">$category</td><td>$procedure</td>";
+            $rows[] = '<tr><td style="width: 80px;">' . $time .
+                      '</td><td style="width: 220px;">' . $category .
+                      '</td><td>' . $procedure . '</td>';
         }
-        $rows = implode("\n", $rows);
+        $rows = implode(PHP_EOL, $rows);
 
         $memory = sprintf('%.1f MB', $this->data['memory'] / 1048576);
         $time = number_format($this->data['time'] * 1000) . ' ms';
