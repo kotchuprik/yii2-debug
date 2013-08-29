@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
  * @author Constantin Chuprik <constantinchuprik@gmail.com>
