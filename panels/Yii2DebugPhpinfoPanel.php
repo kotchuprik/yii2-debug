@@ -53,13 +53,13 @@ class Yii2DebugPhpinfoPanel extends Yii2DebugPanel
         // Get body content
         $phpinfo = preg_replace('/^.*<body>(.*)<\/body>.*$/ms', '$1', $phpinfo);
 
-        // Clear all attributes
+        // Remove all attributes
         $phpinfo = preg_replace('/<\s*(\w+).*?>/', '<$1>', $phpinfo);
 
         // Remove img
         $phpinfo = preg_replace('/<img>/', '', $phpinfo);
 
-        // Delete all links
+        // Remove all links
         $phpinfo = preg_replace('/<a>(.*)<\/a>/i', '$1', $phpinfo);
 
         // Change H2 to H3
