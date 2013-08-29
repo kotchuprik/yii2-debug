@@ -9,6 +9,13 @@ class Yii2DebugRequestPanel extends Yii2DebugPanel
 {
     private $_statusCode;
 
+    public function __construct()
+    {
+        if (!function_exists('http_response_code')) {
+            Yii::app()->attachEventHandler('onException', array($this, '_onException'));
+        }
+    }
+
     public function getTitle()
     {
         return 'Request';
@@ -154,13 +161,6 @@ HTML;
         }
 
         return $this->_statusCode;
-    }
-
-    public function __construct()
-    {
-        if (!function_exists('http_response_code')) {
-            Yii::app()->attachEventHandler('onException', array($this, '_onException'));
-        }
     }
 
     /**
