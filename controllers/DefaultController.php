@@ -64,14 +64,30 @@ class DefaultController extends CController
     public function actionToolbar($tag)
     {
         $this->_loadData($tag);
+
         $this->renderPartial('toolbar', array(
             'panels' => $this->getComponent()->panels,
         ));
     }
 
-    public function actionPhpinfo()
+    public function actionPhpinfo($tag = null)
     {
-        phpinfo();
+//        phpinfo();
+        if ($tag === null) {
+            $tags = array_keys($this->_getManifest());
+            $tag = reset($tags);
+        }
+        $this->_loadData($tag);
+        $activePanel = $this->getComponent()->panels['request'];
+
+        $this->render('phpinfo', array(
+            'tag' => $tag,
+            'panels' => $this->getComponent()->panels,
+            'summary' => $this->summary,
+            'manifest' => $this->_getManifest(),
+            'panels' => $this->getComponent()->panels,
+            'activePanel' => $activePanel,
+        ));
     }
 
     protected function _getManifest()
@@ -94,14 +110,16 @@ class DefaultController extends CController
         $manifest = $this->_getManifest();
         if (isset($manifest[$tag])) {
             $path = $this->getComponent()->logPath;
-            $dataFile = "$path/$tag.json";
+            $dataFile = $path . '/' . $tag . '.json';
             $data = json_decode(file_get_contents($dataFile), true);
+
             foreach ($this->getComponent()->panels as $id => $panel) {
-                if (isset($data[$id])) {
+                // If array data isset, but is null
+                if (array_key_exists($id, $data)) {
                     $panel->tag = $tag;
                     $panel->load($data[$id]);
                 } else {
-                    // remove the panel since it has not received any data
+                    // Remove the panel since it has not received any data
                     unset($this->getComponent()->panels[$id]);
                 }
             }

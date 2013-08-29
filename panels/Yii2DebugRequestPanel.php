@@ -5,11 +5,11 @@
  * @package Yii2Debug
  * @since 1.1.13
  */
-class Yii2RequestPanel extends Yii2DebugPanel
+class Yii2DebugRequestPanel extends Yii2DebugPanel
 {
     private $_statusCode;
 
-    public function getName()
+    public function getTitle()
     {
         return 'Request';
     }
@@ -41,7 +41,7 @@ HTML;
 HTML;
     }
 
-    public function getDetail()
+    public function getDetails()
     {
         $data = array(
             'Route' => $this->data['route'],
@@ -52,31 +52,31 @@ HTML;
         return $this->_renderTabs(array(
             array(
                 'label' => 'Parameters',
-                'content' => $this->_renderDetail('Routing', $data)
-                             . $this->_renderDetail('$_GET', $this->data['GET'])
-                             . $this->_renderDetail('$_POST', $this->data['POST'])
-                             . $this->_renderDetail('$_FILES', $this->data['FILES'])
-                             . $this->_renderDetail('$_COOKIE', $this->data['COOKIE']),
+                'content' => $this->_renderDetails('Routing', $data)
+                             . $this->_renderDetails('$_GET', $this->data['GET'])
+                             . $this->_renderDetails('$_POST', $this->data['POST'])
+                             . $this->_renderDetails('$_FILES', $this->data['FILES'])
+                             . $this->_renderDetails('$_COOKIE', $this->data['COOKIE']),
                 'active' => true,
             ),
             array(
                 'label' => 'Headers',
-                'content' => $this->_renderDetail('Request Headers', $this->data['requestHeaders'])
-                             . $this->_renderDetail('Response Headers', $this->data['responseHeaders']),
+                'content' => $this->_renderDetails('Request Headers', $this->data['requestHeaders'])
+                             . $this->_renderDetails('Response Headers', $this->data['responseHeaders']),
             ),
             array(
                 'label' => 'Session',
-                'content' => $this->_renderDetail('$_SESSION', $this->data['SESSION'])
-                             . $this->_renderDetail('Flashes', $this->data['flashes']),
+                'content' => $this->_renderDetails('$_SESSION', $this->data['SESSION'])
+                             . $this->_renderDetails('Flashes', $this->data['flashes']),
             ),
             array(
                 'label' => '$_SERVER',
-                'content' => $this->_renderDetail('$_SERVER', $this->data['SERVER']),
+                'content' => $this->_renderDetails('$_SERVER', $this->data['SERVER']),
             ),
         ));
     }
 
-    public function save()
+    public function getDataToSave()
     {
         if (function_exists('apache_request_headers')) {
             $requestHeaders = apache_request_headers();

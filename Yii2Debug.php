@@ -59,6 +59,7 @@ class Yii2Debug extends CApplicationComponent
         Yii::app()->setImport(array(
             'yii2-debug.*',
             'yii2-debug.panels.*',
+            'yii2-debug.components.*',
         ));
 
         if ($this->logPath === null) {
@@ -105,19 +106,22 @@ class Yii2Debug extends CApplicationComponent
     {
         return array(
             'config' => array(
-                'class' => 'Yii2ConfigPanel',
+                'class' => 'Yii2DebugConfigPanel',
+            ),
+            'phpinfo' => array(
+                'class' => 'Yii2DebugPhpinfoPanel',
             ),
             'request' => array(
-                'class' => 'Yii2RequestPanel',
+                'class' => 'Yii2DebugRequestPanel',
             ),
             'log' => array(
-                'class' => 'Yii2LogPanel',
+                'class' => 'Yii2DebugLogPanel',
             ),
             'profiling' => array(
-                'class' => 'Yii2ProfilingPanel',
+                'class' => 'Yii2DebugProfilingPanel',
             ),
             'db' => array(
-                'class' => 'Yii2DbPanel',
+                'class' => 'Yii2DebugDbPanel',
             ),
         );
     }
@@ -202,7 +206,7 @@ JS
         $dataFile = $path . '/' . $this->getTag() . '.json';
         $data = array();
         foreach ($this->panels as $panel) {
-            $data[$panel->id] = $panel->save();
+            $data[$panel->id] = $panel->getDataToSave();
             $panel->load($data[$panel->id]);
         }
         $data['summary'] = $summary;
@@ -222,7 +226,7 @@ JS
             $path = $this->logPath;
             $n = count($manifest) - $this->historySize;
             foreach (array_keys($manifest) as $tag) {
-                @unlink("$path/$tag.json");
+                @unlink($path . '/' . $tag . '.json');
                 unset($manifest[$tag]);
                 if (--$n <= 0) {
                     break;

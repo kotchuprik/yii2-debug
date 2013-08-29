@@ -29,7 +29,7 @@ $this->pageTitle = 'Yii Debugger';
 				<ul class="nav nav-pills nav-stacked">
 					<?php
 					foreach ($panels as $id => $panel) {
-						$link = CHtml::link(CHtml::encode($panel->getName()), array('view', 'tag' => $tag, 'panel' => $id));
+						$link = CHtml::link(CHtml::encode($panel->getTitle()), array('view', 'tag' => $tag, 'panel' => $id));
 						echo CHtml::tag('li', array('class' => $panel === $activePanel ? 'active' : null), $link);
 					}
 					?>
@@ -72,7 +72,7 @@ $this->pageTitle = 'Yii Debugger';
 					at <?php echo date('Y-m-d h:i:s', $summary['time']); ?>
 					by <?php echo $summary['ip']; ?>
 				</div>
-				<?php echo $activePanel->getDetail(); ?>
+				<?php echo $activePanel->getDetails(); ?>
 			</div>
 		</div>
 	</div>

@@ -5,9 +5,9 @@
  * @package Yii2Debug
  * @since 1.1.13
  */
-class Yii2ProfilingPanel extends Yii2DebugPanel
+class Yii2DebugProfilingPanel extends Yii2DebugPanel
 {
-    public function getName()
+    public function getTitle()
     {
         return 'Profiling';
     }
@@ -28,7 +28,7 @@ class Yii2ProfilingPanel extends Yii2DebugPanel
 HTML;
     }
 
-    public function getDetail()
+    public function getDetails()
     {
         $messages = $this->data['messages'];
         $timings = array();
@@ -85,7 +85,7 @@ $rows
 HTML;
     }
 
-    public function save()
+    public function getDataToSave()
     {
         $messages = Yii::getLogger()->getLogs(CLogger::LEVEL_PROFILE);
 

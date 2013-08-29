@@ -40,7 +40,7 @@ abstract class Yii2DebugPanel extends CComponent
     /**
      * @return string название панели для вывода в меню
      */
-    abstract public function getName();
+    abstract public function getTitle();
 
     /**
      * @return string html-контент для вывода в дебаг-панель
@@ -50,13 +50,13 @@ abstract class Yii2DebugPanel extends CComponent
     /**
      * @return string html-контент для вывода на страницу
      */
-    abstract public function getDetail();
+    abstract public function getDetails();
 
     /**
      * Базовый метод для сбора отладочной информации
      * @return mixed
      */
-    abstract public function save();
+    abstract public function getDataToSave();
 
     public function load($data)
     {
@@ -82,19 +82,19 @@ abstract class Yii2DebugPanel extends CComponent
      *
      * @return string
      */
-    protected function _renderDetail($caption, $values)
+    protected function _renderDetails($caption, $values)
     {
         if (empty($values)) {
-            return "<h3>$caption</h3>\n<p>Empty.</p>";
+            return '<h3>' . $caption . '</h3>' . PHP_EOL . '<p>Empty.</p>';
         }
         $rows = '';
         foreach ($values as $name => $value) {
             if (is_string($value)) {
                 $value = CHtml::encode($value);
             } elseif ($this->highlightCode) {
-                $value = $this->_highlightPhp(var_export($value, true));
+                $value = '<pre class="pre-scrollable">' . $this->_highlightPhp(Yii2DebugVarExporter::export($value)) . '</pre>';
             } else {
-                $value = CHtml::encode(var_export($value, true));
+                $value = '<pre class="pre-scrollable">' . CHtml::encode(var_export($value, true)) . '</pre>';
             }
             $rows .= '<tr><th style="width:300px;word-break:break-all;">'
                      . CHtml::encode($name)
@@ -132,7 +132,7 @@ HTML;
         }
         $html = $this->_hl->highlight($code);
 
-        return strip_tags($html, '<div>,<span>');
+        return strip_tags($html, '<span>');
     }
 
     /**

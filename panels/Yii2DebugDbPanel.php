@@ -5,7 +5,7 @@
  * @package Yii2Debug
  * @since 1.1.13
  */
-class Yii2DbPanel extends Yii2DebugPanel
+class Yii2DebugDbPanel extends Yii2DebugPanel
 {
     /**
      * @var bool вставлять или нет значения параметров в sql-запрос
@@ -21,7 +21,7 @@ class Yii2DbPanel extends Yii2DebugPanel
      */
     private $_hl;
 
-    public function getName()
+    public function getTitle()
     {
         return 'Database';
     }
@@ -47,7 +47,7 @@ HTML;
         return $queryCount > 0 ? $output : '';
     }
 
-    public function getDetail()
+    public function getDetails()
     {
         $queriesCount = count($this->_calculateTimings());
         $resumeCount = count($this->_calculateResume());
@@ -70,7 +70,7 @@ HTML;
         ));
     }
 
-    public function save()
+    public function getDataToSave()
     {
         $messages = Yii::getLogger()->getLogs(CLogger::LEVEL_PROFILE, 'system.db.CDbCommand.*');
 
@@ -111,7 +111,7 @@ HTML;
             }
             $rows[] = '<tr><td style="width: 100px;">' . $time .
                       '</td><td style="width: 80px;">' . $duration .
-                      '</td><td>' . $procedure . '</td>';
+                      '</td><td><pre class="pre-scrollable">' . $procedure . '</pre></td>';
         }
         $rows = implode(PHP_EOL, $rows);
 
@@ -125,7 +125,9 @@ HTML;
 </tr>
 </thead>
 <tbody>
-$rows
+<pre class="pre-scrollable">
+    $rows
+</pre>
 </tbody>
 </table>
 HTML;
@@ -153,7 +155,7 @@ HTML;
             $rows[] = <<<HTML
 <tr>
 	<td style="width:30px;">$num</td>
-	<td>$query</td>
+	<td><pre class="pre-scrollable">$query</pre></td>
 	<td style="width:50px;">$count</td>
 	<td style="width:70px;">$total</td>
 	<td style="width:70px;">$avg</td>
@@ -192,14 +194,14 @@ HTML;
     {
         $content = '';
         foreach ($this->data['connections'] as $id => $connection) {
-            $caption = 'Component: ' . $id . '(' . $connection . '[class])';
+            $caption = 'Component: ' . $id . '(' . $connection['class'] . ')';
             unset($connection['class']);
             foreach (explode('  ', $connection['info']) as $line) {
                 list($key, $value) = explode(': ', $line, 2);
                 $connection[$key] = $value;
             }
             unset($connection['info']);
-            $content .= $this->_renderDetail($caption, $connection);
+            $content .= $this->_renderDetails($caption, $connection);
         }
 
         return $content;
@@ -365,6 +367,6 @@ HTML;
         }
         $html = $this->_hl->highlight($sql);
 
-        return strip_tags($html, '<div>,<span>');
+        return strip_tags($html, '<span>');
     }
 }

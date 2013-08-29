@@ -11,8 +11,9 @@
     <span class="yii2-debug-toolbar-toggler">›</span>
 </div>
 <div id="yii2-debug-toolbar-min">
-    <a href="<?= $panels['request']->getUrl() ?>" title="Open Yii Debugger" id="yii2-debug-toolbar-logo" target="_blank">
-        <img width="29" height="30" alt="" src="<?= Yii2ConfigPanel::getYiiLogo() ?>">
+    <a href="<?= $panels['request']->getUrl() ?>" title="Open Yii Debugger" id="yii2-debug-toolbar-logo"
+       target="_blank">
+        <img width="29" height="30" alt="" src="<?= Yii2DebugConfigPanel::getYiiLogo() ?>">
     </a>
     <span class="yii2-debug-toolbar-toggler">‹</span>
 </div>

@@ -5,9 +5,9 @@
  * @package Yii2Debug
  * @since 1.1.13
  */
-class Yii2ConfigPanel extends Yii2DebugPanel
+class Yii2DebugConfigPanel extends Yii2DebugPanel
 {
-    public function getName()
+    public function getTitle()
     {
         return 'Configuration';
     }
@@ -21,7 +21,6 @@ class Yii2ConfigPanel extends Yii2DebugPanel
     {
         $yiiLogo = $this->getYiiLogo();
         $url = $this->getUrl();
-        $phpUrl = Yii::app()->createUrl($this->component->moduleId . '/default/phpinfo');
 
         return <<<HTML
 <div class="yii2-debug-toolbar-block">
@@ -30,47 +29,33 @@ class Yii2ConfigPanel extends Yii2DebugPanel
 		<span>{$this->data['application']['yii']}</span>
 	</a>
 </div>
-<div class="yii2-debug-toolbar-block">
-	<a href="$phpUrl" title="Show phpinfo()">PHP {$this->data['php']['version']}</a>
-</div>
 HTML;
     }
 
-    public function getDetail()
+    public function getDetails()
     {
         $app = array(
             'Yii Version' => $this->data['application']['yii'],
             'Application Name' => $this->data['application']['name'],
             'Debug Mode' => $this->data['application']['debug'] ? 'Yes' : 'No',
         );
-        $php = array(
-            'PHP Version' => $this->data['php']['version'],
-            'Xdebug' => $this->data['php']['xdebug'] ? 'Enabled' : 'Disabled',
-            'APC' => $this->data['php']['apc'] ? 'Enabled' : 'Disabled',
-            'Memcache' => $this->data['php']['memcache'] ? 'Enabled' : 'Disabled',
-        );
 
-        return $this->_renderDetail('Application Configuration', $app) .
-               $this->_renderDetail('PHP Configuration', $php) .
-               CHtml::tag('div', array(), CHtml::link('phpinfo()', array('phpinfo'), array('class' => 'btn btn-info')));
+        return $this->_renderDetails('Application Configuration', $app) .
+               $this->_renderDetails('Components', $this->data['components']);
     }
 
-    public function save()
+    public function getDataToSave()
     {
+        $components = Yii::app()->components;
+        unset($components['debug']);
+
         return array(
-            'phpVersion' => PHP_VERSION,
-            'yiiVersion' => Yii::getVersion(),
             'application' => array(
                 'yii' => Yii::getVersion(),
                 'name' => Yii::app()->name,
                 'debug' => YII_DEBUG,
             ),
-            'php' => array(
-                'version' => PHP_VERSION,
-                'xdebug' => extension_loaded('xdebug'),
-                'apc' => extension_loaded('apc'),
-                'memcache' => extension_loaded('memcache'),
-            ),
+            'components' => $components,
         );
     }
 }

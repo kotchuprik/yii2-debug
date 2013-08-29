@@ -5,9 +5,9 @@
  * @package Yii2Debug
  * @since 1.1.13
  */
-class Yii2LogPanel extends Yii2DebugPanel
+class Yii2DebugLogPanel extends Yii2DebugPanel
 {
-    public function getName()
+    public function getTitle()
     {
         return 'Logs';
     }
@@ -45,7 +45,7 @@ class Yii2LogPanel extends Yii2DebugPanel
 HTML;
     }
 
-    public function getDetail()
+    public function getDetails()
     {
         $rows = array();
         foreach ($this->data['messages'] as $log) {
@@ -108,7 +108,7 @@ $rows
 HTML;
     }
 
-    public function save()
+    public function getDataToSave()
     {
         $messages = Yii::getLogger()->getLogs(implode(',', array(
             CLogger::LEVEL_ERROR,
