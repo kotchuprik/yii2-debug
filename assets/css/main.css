@@ -149,7 +149,7 @@ tr.error ul.trace {
     font-size: 14px !important;
 }
 
-pre {
+pre.yii2-debug-pre {
     background: none;
     border: 0;
     padding: 0;

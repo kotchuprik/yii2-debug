@@ -92,9 +92,9 @@ abstract class Yii2DebugPanel extends CComponent
             if (is_string($value)) {
                 $value = CHtml::encode($value);
             } elseif ($this->highlightCode) {
-                $value = '<pre class="pre-scrollable">' . $this->_highlightPhp(Yii2DebugVarExporter::export($value)) . '</pre>';
+                $value = '<pre class="pre-scrollable yii2-debug-pre">' . $this->_highlightPhp(Yii2DebugVarExporter::export($value)) . '</pre>';
             } else {
-                $value = '<pre class="pre-scrollable">' . CHtml::encode(var_export($value, true)) . '</pre>';
+                $value = '<pre class="pre-scrollable yii2-debug-pre">' . CHtml::encode(var_export($value, true)) . '</pre>';
             }
             $rows .= '<tr><th style="width:300px;word-break:break-all;">'
                      . CHtml::encode($name)

@@ -111,7 +111,7 @@ HTML;
             }
             $rows[] = '<tr><td style="width: 100px;">' . $time .
                       '</td><td style="width: 80px;">' . $duration .
-                      '</td><td><pre class="pre-scrollable">' . $procedure . '</pre></td>';
+                      '</td><td><pre class="pre-scrollable yii2-debug-pre">' . $procedure . '</pre></td>';
         }
         $rows = implode(PHP_EOL, $rows);
 
@@ -125,9 +125,7 @@ HTML;
 </tr>
 </thead>
 <tbody>
-<pre class="pre-scrollable">
-    $rows
-</pre>
+$rows
 </tbody>
 </table>
 HTML;
@@ -155,7 +153,7 @@ HTML;
             $rows[] = <<<HTML
 <tr>
 	<td style="width:30px;">$num</td>
-	<td><pre class="pre-scrollable">$query</pre></td>
+	<td><pre class="pre-scrollable yii2-debug-pre">$query</pre></td>
 	<td style="width:50px;">$count</td>
 	<td style="width:70px;">$total</td>
 	<td style="width:70px;">$avg</td>
