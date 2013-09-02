@@ -44,11 +44,10 @@ $this->pageTitle = 'Yii Debugger';
                             <?php
                             $count = 0;
                             foreach ($manifest as $meta) {
-                                $label =
-                                        $meta['tag'] . ': ' . $meta['method'] . ' ' . $meta['url'] .
-                                        ($meta['ajax'] ? ' (AJAX)' : '')
-                                        . ', ' . date('Y-m-d h:i:s', $meta['time'])
-                                        . ', ' . $meta['ip'];
+                                $label = $meta['tag'] . ': ' . $meta['method'] . ' ' . $meta['url'] .
+                                         ($meta['ajax'] ? ' (AJAX)' : '')
+                                         . ', ' . date('Y-m-d h:i:s', $meta['time'])
+                                         . ', ' . $meta['ip'];
                                 $url = array('view', 'tag' => $meta['tag'], 'panel' => $activePanel->id);
                                 if ($meta['tag'] == $tag) {
                                     echo '<li class="disabled">';
@@ -64,7 +63,7 @@ $this->pageTitle = 'Yii Debugger';
                             ?>
                         </ul>
                     </div>
-                    <?= $summary['tag']; ?>: <?= $summary['method'] ?>
+                    <?= $summary['method'] ?>
                     <?= CHtml::link(CHtml::encode($summary['url']), $summary['url'], array('class' => 'label')) ?>
                     <?= $summary['ajax'] ? ' (AJAX)' : '' ?> at <?= date('Y-m-d h:i:s', $summary['time']) ?>
                     by <?= $summary['ip'] ?>
