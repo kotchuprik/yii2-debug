@@ -39,7 +39,7 @@ class Yii2DebugRequestPanel extends Yii2DebugPanel
 	<a href="$url" title="Status code: $statusCode" target="_blank">Status <span class="label $class">$statusCode</span></a>
 </div>
 <div class="yii2-debug-toolbar-block">
-	<a href="$url" target="_blank">Action <span class="label">{$this->data['action']}</span></a>
+	<a href="$url" target="_blank">Action <span class="label">{$this->data['action']}</span> <span class="label label-label">{$this->tag}</span></a>
 </div>
 HTML;
     }
