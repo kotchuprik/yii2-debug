@@ -130,7 +130,9 @@ class Yii2Debug extends CApplicationComponent
      */
     public function initToolbar()
     {
-        if (!$this->checkAccess()) {
+        if (!$this->checkAccess() ||
+            (isset(Yii::app()->controller->module) && Yii::app()->controller->module->id == $this->moduleId)
+        ) {
             return null;
         }
 

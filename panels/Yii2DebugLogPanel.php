@@ -40,7 +40,7 @@ class Yii2DebugLogPanel extends Yii2DebugPanel
 
         return <<<HTML
 <div class="yii2-debug-toolbar-block">
-	<a href="$url" title="$title">Log $html</a>
+	<a href="$url" title="$title" target="_blank">Log $html</a>
 </div>
 HTML;
     }

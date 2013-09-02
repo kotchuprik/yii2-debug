@@ -20,10 +20,10 @@ class Yii2DebugProfilingPanel extends Yii2DebugPanel
 
         return <<<HTML
 <div class="yii2-debug-toolbar-block">
-	<a href="$url" title="Total request processing time was $time">Time <span class="label">$time</span></a>
+	<a href="$url" title="Total request processing time was $time" target="_blank">Time <span class="label">$time</span></a>
 </div>
 <div class="yii2-debug-toolbar-block">
-	<a href="$url" title="Peak memory consumption">Memory <span class="label">$memory</span></a>
+	<a href="$url" title="Peak memory consumption" target="_blank">Memory <span class="label">$memory</span></a>
 </div>
 HTML;
     }

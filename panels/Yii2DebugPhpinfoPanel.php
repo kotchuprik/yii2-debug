@@ -28,7 +28,7 @@ class Yii2DebugPhpinfoPanel extends Yii2DebugPanel
     public function getSummary()
     {
         return '<div class="yii2-debug-toolbar-block">' .
-               CHtml::link('PHP ' . PHP_VERSION, $this->getUrl()) .
+               CHtml::link('PHP ' . PHP_VERSION, $this->getUrl(), array('target' => '_blank')) .
                '</div>';
     }
 

@@ -72,7 +72,6 @@ class DefaultController extends CController
 
     public function actionPhpinfo($tag = null)
     {
-//        phpinfo();
         if ($tag === null) {
             $tags = array_keys($this->_getManifest());
             $tag = reset($tags);

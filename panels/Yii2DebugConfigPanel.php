@@ -24,7 +24,7 @@ class Yii2DebugConfigPanel extends Yii2DebugPanel
 
         return <<<HTML
 <div class="yii2-debug-toolbar-block">
-	<a href="$url">
+	<a href="$url" target="_blank">
 		<img width="29" height="30" alt="" src="$yiiLogo">
 		<span>{$this->data['application']['yii']}</span>
 	</a>

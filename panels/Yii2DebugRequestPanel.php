@@ -25,25 +25,21 @@ class Yii2DebugRequestPanel extends Yii2DebugPanel
     {
         $url = $this->getUrl();
 
-        $status = '';
-        if ($statusCode = $this->data['statusCode']) {
-            if ($statusCode >= 200 && $statusCode < 300) {
-                $class = 'label-success';
-            } elseif ($statusCode >= 100 && $statusCode < 200) {
-                $class = 'label-info';
-            } else {
-                $class = 'label-important';
-            }
-            $status .= <<<HTML
-<div class="yii2-debug-toolbar-block">
-	<a href="$url" title="Status code: $statusCode">Status <span class="label $class">$statusCode</span></a>
-</div>
-HTML;
+        $statusCode = $this->data['statusCode'];
+        if ($statusCode >= 200 && $statusCode < 300) {
+            $class = 'label-success';
+        } elseif ($statusCode >= 100 && $statusCode < 200) {
+            $class = 'label-info';
+        } else {
+            $class = 'label-important';
         }
 
-        return $status . <<<HTML
+        return <<<HTML
 <div class="yii2-debug-toolbar-block">
-	<a href="$url">Action <span class="label">{$this->data['action']}</span></a>
+	<a href="$url" title="Status code: $statusCode" target="_blank">Status <span class="label $class">$statusCode</span></a>
+</div>
+<div class="yii2-debug-toolbar-block">
+	<a href="$url" target="_blank">Action <span class="label">{$this->data['action']}</span></a>
 </div>
 HTML;
     }

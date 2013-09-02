@@ -38,7 +38,7 @@ class Yii2DebugDbPanel extends Yii2DebugPanel
         $url = $this->getUrl();
         $output = <<<HTML
 <div class="yii2-debug-toolbar-block">
-	<a href="$url" title="Executed $queryCount database queries which took $queryTime.">
+	<a href="$url" title="Executed $queryCount database queries which took $queryTime." target="_blank">
 		DB <span class="label">$queryCount</span> <span class="label">$queryTime</span>
 	</a>
 </div>
