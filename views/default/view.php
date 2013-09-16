@@ -7,28 +7,25 @@
  * @var Yii2DebugPanel[] $panels
  * @var Yii2DebugPanel $activePanel
  */
-$this->pageTitle = 'Yii Debugger';
 ?>
-<nav class="navbar navbar-default">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <span class="navbar-brand">Yii Debugger</span>
-        </div>
-        <div class="collapse navbar-collapse navbar-ex1-collapse">
-            <ul class="nav navbar-nav">
-                <li>
-                    <?php foreach ($panels as $panel): ?>
-                        <?= $panel->getSummary() ?>
-                    <?php endforeach; ?>
-                </li>
-            </ul>
-        </div>
+<nav class="navbar navbar-default navbar-static-top">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <span class="navbar-brand">Yii Debugger</span>
+    </div>
+    <div class="collapse navbar-collapse navbar-ex1-collapse">
+        <ul class="nav navbar-nav">
+            <li>
+                <?php foreach ($panels as $panel): ?>
+                    <?= $panel->getSummary() ?>
+                <?php endforeach; ?>
+            </li>
+        </ul>
     </div>
 </nav>
 
@@ -37,7 +34,7 @@ $this->pageTitle = 'Yii Debugger';
         <div class="col-md-2">
             <ul class="nav nav-pills nav-stacked">
                 <?php foreach ($panels as $id => $panel): ?>
-                    <li <?= $panel === $activePanel ? 'class="active"' : '' ?>>
+                    <li<?= $panel === $activePanel ? ' class="active"' : '' ?>>
                         <?= CHtml::link(CHtml::encode($panel->getTitle()), array('view', 'tag' => $tag, 'panel' => $id)) ?>
                     </li>
                 <?php endforeach; ?>
