@@ -15,6 +15,11 @@ class Yii2DebugProxyComponent extends CComponent
     private $_instance;
     private $_isProxy;
 
+    public function init()
+    {
+        // Yii's magic OOP
+    }
+
     public function getInstance()
     {
         return $this->_instance;
