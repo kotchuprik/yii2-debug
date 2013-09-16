@@ -26,6 +26,9 @@ class Yii2Debug extends CApplicationComponent
     public $highlightCode = true;
 
     private $_tag;
+    private $_proxyMap = array(
+        'viewRenderer' => 'Yii2DebugViewRenderer'
+    );
 
     /**
      * Генерируется уникальная метка страницы, подключается модуль просмотра,
@@ -45,7 +48,10 @@ class Yii2Debug extends CApplicationComponent
             'yii2-debug.*',
             'yii2-debug.panels.*',
             'yii2-debug.helpers.*',
+            'yii2-debug.components.*',
         ));
+
+        $this->_initProxyMap();
 
         if ($this->logPath === null) {
             $this->logPath = Yii::app()->getRuntimePath() . '/debug';
@@ -107,6 +113,9 @@ class Yii2Debug extends CApplicationComponent
             ),
             'db' => array(
                 'class' => 'Yii2DebugDbPanel',
+            ),
+            'views' => array(
+                'class' => 'Yii2DebugViewPanel',
             ),
         );
     }
@@ -179,6 +188,21 @@ JS
     protected function _onEndRequest($event)
     {
         $this->_processDebug();
+    }
+
+    protected function _initProxyMap()
+    {
+        foreach ($this->_proxyMap as $name => $class) {
+            $instance = Yii::app()->getComponent($name);
+            if ($instance !== null) {
+                Yii::app()->setComponent($name, null);
+            }
+            $this->_proxyMap[$name] = array(
+                'class' => $class,
+                'instance' => $instance
+            );
+        }
+        Yii::app()->setComponents($this->_proxyMap, false);
     }
 
     /**
