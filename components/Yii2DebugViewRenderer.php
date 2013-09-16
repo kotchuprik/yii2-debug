@@ -17,10 +17,6 @@ class Yii2DebugViewRenderer extends Yii2DebugProxyComponent
     );
     protected $_debugStackTrace = array();
 
-    public function init()
-    {
-    }
-
     public function getDebugStackTrace()
     {
         return $this->_debugStackTrace;
