@@ -276,7 +276,7 @@ HTML;
         return $this->_resume = $resume;
     }
 
-    private function _compareResume($a, $b)
+    protected function _compareResume($a, $b)
     {
         if ($a[2] == $b[2]) {
             return 0;
@@ -314,7 +314,7 @@ HTML;
      *
      * @return array key/value
      */
-    private function _parseParamsSql($params)
+    protected function _parseParamsSql($params)
     {
         $binds = array();
         $pos = 0;

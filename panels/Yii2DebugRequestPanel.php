@@ -7,7 +7,7 @@
  */
 class Yii2DebugRequestPanel extends Yii2DebugPanel
 {
-    private $_statusCode;
+    protected $_statusCode;
 
     public function __construct()
     {
@@ -132,7 +132,7 @@ HTML;
 
         return array(
             'flashes' => $user ? $user->getFlashes(false) : array(),
-            'statusCode' => $this->getStatusCode(),
+            'statusCode' => $this->_getStatusCode(),
             'requestHeaders' => $requestHeaders,
             'responseHeaders' => $responseHeaders,
             'route' => $route,
@@ -150,7 +150,7 @@ HTML;
     /**
      * @return int|null
      */
-    protected function getStatusCode()
+    protected function _getStatusCode()
     {
         if (function_exists('http_response_code')) {
             return http_response_code();

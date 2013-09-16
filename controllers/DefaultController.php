@@ -84,7 +84,6 @@ class DefaultController extends CController
             'panels' => $this->getComponent()->panels,
             'summary' => $this->summary,
             'manifest' => $this->_getManifest(),
-            'panels' => $this->getComponent()->panels,
             'activePanel' => $activePanel,
         ));
     }

@@ -15,12 +15,12 @@ class Yii2DebugVarExporter
         self::$_output = '';
         self::$_objects = array();
         self::$_depth = $depth;
-        self::exportInternal($var, 0);
+        self::_exportInternal($var, 0);
 
         return self::$_output;
     }
 
-    protected static function exportInternal($var, $level)
+    protected static function _exportInternal($var, $level)
     {
         switch (gettype($var)) {
             case 'boolean':
@@ -55,9 +55,9 @@ class Yii2DebugVarExporter
                     self::$_output .= 'array(';
                     foreach ($keys as $key) {
                         self::$_output .= PHP_EOL . $spaces . '    ';
-                        self::exportInternal($key, 0);
+                        self::_exportInternal($key, 0);
                         self::$_output .= ' => ';
-                        self::exportInternal($var[$key], $level + 1);
+                        self::_exportInternal($var[$key], $level + 1);
                         self::$_output .= ',';
                     }
                     self::$_output .= PHP_EOL . $spaces . ')';
@@ -77,7 +77,7 @@ class Yii2DebugVarExporter
                     foreach ($members as $key => $value) {
                         $keyDisplay = strtr(trim($key), array("\0" => ':'));
                         self::$_output .= PHP_EOL . $spaces . '    [' . $keyDisplay . '] => ';
-                        self::$_output .= self::exportInternal($value, $level + 1);
+                        self::_exportInternal($value, $level + 1);
                     }
                     self::$_output .= PHP_EOL . $spaces . ')';
                 }
