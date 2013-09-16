@@ -15,11 +15,6 @@ class Yii2DebugViewPanel extends Yii2DebugPanel
         $this->_viewRenderer = Yii::app()->getComponent('viewRenderer');
     }
 
-    protected function _getViewsCount()
-    {
-        return count($this->data);
-    }
-
     /**
      * @return string название панели для вывода в меню
      */
@@ -70,5 +65,10 @@ class Yii2DebugViewPanel extends Yii2DebugPanel
         }
 
         return $data;
+    }
+
+    protected function _getViewsCount()
+    {
+        return count($this->data);
     }
 }
