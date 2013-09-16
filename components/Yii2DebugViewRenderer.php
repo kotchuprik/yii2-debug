@@ -12,7 +12,7 @@
 
 class Yii2DebugViewRenderer extends Yii2DebugProxyComponent
 {
-    protected $abstract = array(
+    protected $_abstracts = array(
         'fileExtension' => '.php',
     );
     protected $_debugStackTrace = array();
@@ -24,7 +24,7 @@ class Yii2DebugViewRenderer extends Yii2DebugProxyComponent
 
     public function renderFile($context, $sourceFile, $data, $return)
     {
-        $this->collectDebugInfo($context, $sourceFile, $data);
+        $this->_collectDebugInfo($context, $sourceFile, $data);
 
         if ($this->getIsProxy()) {
             return $this->getInstance()->renderFile($context, $sourceFile, $data, $return);
@@ -33,7 +33,14 @@ class Yii2DebugViewRenderer extends Yii2DebugProxyComponent
         return $context->renderInternal($sourceFile, $data, $return);
     }
 
-    protected function collectDebugInfo($context, $sourceFile, $data)
+    public function generateViewFile($sourceFile, $viewFile)
+    {
+        if ($this->getIsProxy() !== false) {
+            return $this->getInstance()->generateViewFile($sourceFile, $viewFile);
+        }
+    }
+
+    protected function _collectDebugInfo($context, $sourceFile, $data)
     {
         if (is_array($data)) {
             array_walk_recursive(
@@ -60,12 +67,5 @@ class Yii2DebugViewRenderer extends Yii2DebugProxyComponent
         }
 
         array_push($this->_debugStackTrace, $collectedData);
-    }
-
-    public function generateViewFile($sourceFile, $viewFile)
-    {
-        if ($this->getIsProxy() !== false) {
-            return $this->getInstance()->generateViewFile($sourceFile, $viewFile);
-        }
     }
 }

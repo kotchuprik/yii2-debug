@@ -9,6 +9,7 @@ class DefaultController extends CController
 {
     public $layout = 'main';
     public $summary;
+    public $pageTitle = 'Yii Debugger';
 
     private $_manifest;
 

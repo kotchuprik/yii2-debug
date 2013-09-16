@@ -11,7 +11,7 @@
  */
 class Yii2DebugProxyComponent extends CComponent
 {
-    protected $abstract = array();
+    protected $_abstracts = array();
     private $_instance;
     private $_isProxy;
 
@@ -28,7 +28,7 @@ class Yii2DebugProxyComponent extends CComponent
     public function setInstance($value)
     {
         if ($this->_instance === null && is_object($value)) {
-            $this->abstract = array_merge($this->abstract, get_object_vars($value));
+            $this->_abstracts = array_merge($this->_abstracts, get_object_vars($value));
             $this->_instance = $value;
         }
     }
@@ -60,8 +60,8 @@ class Yii2DebugProxyComponent extends CComponent
         } else {
             if (property_exists($this, $name)) {
                 return $this->$name;
-            } elseif ($this->getIsProxy() === false && array_key_exists($name, $this->abstract)) {
-                return $this->abstract[$name];
+            } elseif ($this->getIsProxy() === false && array_key_exists($name, $this->_abstracts)) {
+                return $this->_abstracts[$name];
             } elseif ($this->getIsProxy()) {
                 return $this->_instance->$name;
             }
@@ -77,8 +77,8 @@ class Yii2DebugProxyComponent extends CComponent
             return call_user_func_array(array($this, $setter), array($value));
         } elseif (property_exists($this, $name)) {
             return $this->$name = $value;
-        } elseif ($this->getIsProxy() === false && array_key_exists($name, $this->abstract)) {
-            return $this->abstract[$name] = $value;
+        } elseif ($this->getIsProxy() === false && array_key_exists($name, $this->_abstracts)) {
+            return $this->_abstracts[$name] = $value;
         } elseif ($this->getIsProxy()) {
             return $this->_instance->$name = $value;
         }
