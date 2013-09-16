@@ -5,20 +5,27 @@
  */
 $this->pageTitle = 'Yii Debugger';
 ?>
-<div class="default-index">
-    <div class="navbar">
-        <div class="navbar-inner">
-            <div class="container">
-                <div class="yii2-debug-toolbar-block title">Yii Debugger</div>
-            </div>
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <span class="navbar-brand">Yii Debugger</span>
         </div>
     </div>
+</nav>
 
-    <div class="container-fluid">
-        <div class="row-fluid">
-            <h1>Available Debug Data</h1>
-            <table class="table table-condensed table-bordered table-striped table-hover table-filtered"
-                   style="table-layout: fixed;">
+<div class="container">
+    <div class="row">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3>Available Debug Data</h3>
+            </div>
+            <table class="table">
                 <thead>
                 <tr>
                     <th style="width: 120px;">Tag</th>

@@ -1,8 +1,8 @@
 <?php
 /**
  * @author Constantin Chuprik <constantinchuprik@gmail.com>
+ *
  * @package Yii2Debug
- * @since 1.1.13
  */
 class Yii2DebugPhpinfoPanel extends Yii2DebugPanel
 {
@@ -15,14 +15,6 @@ class Yii2DebugPhpinfoPanel extends Yii2DebugPanel
     }
 
     /**
-     * @return string html-контент для вывода на страницу
-     */
-    public function getDetails()
-    {
-        return $this->data['phpinfo'];
-    }
-
-    /**
      * @return string html-контент для вывода в дебаг-панель
      */
     public function getSummary()
@@ -30,6 +22,14 @@ class Yii2DebugPhpinfoPanel extends Yii2DebugPanel
         return '<div class="yii2-debug-toolbar-block">' .
                CHtml::link('PHP ' . PHP_VERSION, $this->getUrl(), array('target' => '_blank')) .
                '</div>';
+    }
+
+    /**
+     * @return string html-контент для вывода на страницу
+     */
+    public function getDetails()
+    {
+        return $this->data['phpinfo'];
     }
 
     /**
@@ -71,7 +71,7 @@ class Yii2DebugPhpinfoPanel extends Yii2DebugPanel
         // Add css classes to tables
         $phpinfo = preg_replace(
             '/table/si',
-            'table class="table table-condensed table-bordered table-striped table-hover phpinfo-table"',
+            'table class="table phpinfo-table"',
             $phpinfo
         );
 

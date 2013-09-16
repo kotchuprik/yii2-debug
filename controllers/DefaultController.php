@@ -2,8 +2,8 @@
 /**
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
  * @author Constantin Chuprik <constantinchuprik@gmail.com>
+ *
  * @package Yii2Debug
- * @since 1.1.13
  */
 class DefaultController extends CController
 {
@@ -17,7 +17,7 @@ class DefaultController extends CController
      */
     public function getComponent()
     {
-        return $this->getModule()->component;
+        return $this->getModule()->debugComponent;
     }
 
     /**
@@ -65,7 +65,7 @@ class DefaultController extends CController
     {
         $this->_loadData($tag);
 
-        $this->renderPartial('toolbar', array(
+        $this->renderPartial('_toolbar', array(
             'panels' => $this->getComponent()->panels,
         ));
     }

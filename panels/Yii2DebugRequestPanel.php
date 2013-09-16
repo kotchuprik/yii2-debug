@@ -2,8 +2,8 @@
 /**
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
  * @author Constantin Chuprik <constantinchuprik@gmail.com>
+ *
  * @package Yii2Debug
- * @since 1.1.13
  */
 class Yii2DebugRequestPanel extends Yii2DebugPanel
 {
@@ -23,25 +23,22 @@ class Yii2DebugRequestPanel extends Yii2DebugPanel
 
     public function getSummary()
     {
-        $url = $this->getUrl();
-
         $statusCode = $this->data['statusCode'];
         if ($statusCode >= 200 && $statusCode < 300) {
             $class = 'label-success';
         } elseif ($statusCode >= 100 && $statusCode < 200) {
             $class = 'label-info';
         } else {
-            $class = 'label-important';
+            $class = 'label-danger';
         }
 
-        return <<<HTML
-<div class="yii2-debug-toolbar-block">
-	<a href="$url" title="Status code: $statusCode" target="_blank">Status <span class="label $class">$statusCode</span></a>
-</div>
-<div class="yii2-debug-toolbar-block">
-	<a href="$url" target="_blank">Action <span class="label">{$this->data['action']}</span> <span class="label label-label">{$this->tag}</span></a>
-</div>
-HTML;
+        return Yii::app()->controller->renderPartial('panels/_requestSummary', array(
+            'url' => $this->getUrl(),
+            'statusCode' => $statusCode,
+            'class' => $class,
+            'action' => $this->data['action'],
+            'tag' => $this->tag,
+        ));
     }
 
     public function getDetails()

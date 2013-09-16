@@ -6,35 +6,23 @@
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
  * @author Constantin Chuprik <constantinchuprik@gmail.com>
  *
+ * @property string $id Id страницы
+ * @property string $tag Метка для просмотра информации
+ * @property Yii2Debug $debugComponent
+ * @property array $data Массив отладочных данных
+ * @property boolean Подсветка кода. По умолчанию Yii2Debug::$highlightCode
+ *
  * @package Yii2Debug
- * @since 1.1.13
  */
 abstract class Yii2DebugPanel extends CComponent
 {
-    /**
-     * @var string id страницы
-     */
     public $id;
-    /**
-     * @var string метка для просмотра информации
-     */
     public $tag;
-    /**
-     * @var Yii2Debug
-     */
-    public $component;
-    /**
-     * @var array массив отладочных данных
-     */
+    public $debugComponent;
     public $data;
-    /**
-     * @var bool|null подчветка кода. По умолчанию Yii2Debug::$highlightCode
-     */
     public $highlightCode;
 
-    /**
-     * @var CTextHighlighter
-     */
+    /** @var CTextHighlighter */
     private $_hl;
 
     /**
@@ -68,50 +56,10 @@ abstract class Yii2DebugPanel extends CComponent
      */
     public function getUrl()
     {
-        return Yii::app()->createUrl($this->component->moduleId . '/default/view', array(
+        return Yii::app()->createUrl($this->debugComponent->moduleId . '/default/view', array(
             'panel' => $this->id,
             'tag' => $this->tag,
         ));
-    }
-
-    /**
-     * Рендер блока с массивом key-value
-     *
-     * @param string $caption
-     * @param array $values
-     *
-     * @return string
-     */
-    protected function _renderDetails($caption, $values)
-    {
-        if (empty($values)) {
-            return '<h3>' . $caption . '</h3>' . PHP_EOL . '<p>Empty.</p>';
-        }
-        $rows = '';
-        foreach ($values as $name => $value) {
-            if (is_string($value)) {
-                $value = CHtml::encode($value);
-            } elseif ($this->highlightCode) {
-                $value = '<pre class="pre-scrollable yii2-debug-pre">' . $this->_highlightPhp(Yii2DebugVarExporter::export($value)) . '</pre>';
-            } else {
-                $value = '<pre class="pre-scrollable yii2-debug-pre">' . CHtml::encode(var_export($value, true)) . '</pre>';
-            }
-            $rows .= '<tr><th style="width:300px;word-break:break-all;">'
-                     . CHtml::encode($name)
-                     . '</th><td><div style="overflow:auto">'
-                     . $value
-                     . '</div></td></tr>';
-        }
-
-        return <<<HTML
-<h3>$caption</h3>
-<table class="table table-condensed table-bordered table-striped table-hover" style="table-layout: fixed;">
-<thead><tr><th style="width: 300px;">Name</th><th>Value</th></tr></thead>
-<tbody>
-$rows
-</tbody>
-</table>
-HTML;
     }
 
     /**
@@ -121,7 +69,7 @@ HTML;
      *
      * @return string
      */
-    protected function _highlightPhp($code)
+    public function highlightPhp($code)
     {
         if ($this->_hl === null) {
             $this->_hl = Yii::createComponent(array(
@@ -136,37 +84,32 @@ HTML;
     }
 
     /**
+     * Рендер блока с массивом key-value
+     *
+     * @param string $caption
+     * @param array $values
+     *
+     * @return string
+     */
+    protected function _renderDetails($caption, $values)
+    {
+        return Yii::app()->controller->renderPartial('panels/_details', array(
+            'debugPanel' => $this,
+            'caption' => $caption,
+            'values' => $values,
+        ), true);
+    }
+
+    /**
      * Рендер панели с закладками
      * @param array $items
      *
      * @return string
      */
-    protected function _renderTabs($items)
+    protected function _renderTabs(array $items)
     {
-        static $counter = 0;
-        $counter++;
-        $id = 'tabs' . $counter;
-
-        $tabs = '';
-        foreach ($items as $num => $item) {
-            $tabs .= CHtml::tag('li', array(
-                    'class' => isset($item['active']) && $item['active'] ? 'active' : ''
-                ), CHtml::link($item['label'], '#' . $id . '-tab' . $num, array('data-toggle' => 'tab'))
-            );
-        }
-
-        $details = '';
-        foreach ($items as $num => $item) {
-            $details .= CHtml::tag('div', array(
-                    'id' => $id . '-tab' . $num,
-                    'class' => 'tab-pane' . (isset($item['active']) && $item['active'] ? ' active' : ''),
-                ), $item['content']
-            );
-        }
-
-        return <<<HTML
-<ul id="tabs{$counter}" class="nav nav-tabs">$tabs</ul>
-<div class="tab-content">$details</div>
-HTML;
+        return Yii::app()->controller->renderPartial('panels/_tabs', array(
+            'items' => $items,
+        ), true);
     }
 }

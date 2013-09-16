@@ -2,8 +2,8 @@
 /**
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
  * @author Constantin Chuprik <constantinchuprik@gmail.com>
+ *
  * @package Yii2Debug
- * @since 1.1.13
  */
 class Yii2DebugLogPanel extends Yii2DebugPanel
 {
@@ -14,98 +14,77 @@ class Yii2DebugLogPanel extends Yii2DebugPanel
 
     public function getSummary()
     {
-        $errorCount = 0;
-        $warningCount = 0;
+        $errorsCount = 0;
+        $warningsCount = 0;
         foreach ($this->data['messages'] as $log) {
             $level = $log[1];
             if ($level == CLogger::LEVEL_ERROR) {
-                $errorCount++;
+                $errorsCount++;
             } elseif ($level == CLogger::LEVEL_WARNING) {
-                $warningCount++;
+                $warningsCount++;
             }
         }
 
-        $output = array('<span class="label">' . count($this->data['messages']) . '</span>');
         $title = 'Logged ' . count($this->data['messages']) . ' messages';
-        if ($errorCount) {
-            $output[] = '<span class="label label-important">' . $errorCount . '</span>';
-            $title .= ', ' . $errorCount . ' errors';
+        if ($errorsCount) {
+            $title .= ', ' . $errorsCount . ' errors';
         }
-        if ($warningCount) {
-            $output[] = ' < span class="label label-warning" > ' . $warningCount . '</span > ';
-            $title .= ', ' . $warningCount . ' warnings';
+        if ($warningsCount) {
+            $title .= ', ' . $warningsCount . ' warnings';
         }
-        $html = implode('&nbsp;', $output);
-        $url = $this->getUrl();
 
-        return <<<HTML
-<div class="yii2-debug-toolbar-block">
-	<a href="$url" title="$title" target="_blank">Log $html</a>
-</div>
-HTML;
+        return Yii::app()->controller->renderPartial('panels/_logSummary', array(
+            'title' => $title,
+            'url' => $this->getUrl(),
+            'messagesCount' => array(
+                'total' => count($this->data['messages']),
+                'errors' => $errorsCount,
+                'warnings' => $warningsCount,
+            ),
+        ));
     }
 
     public function getDetails()
     {
         $rows = array();
         foreach ($this->data['messages'] as $log) {
+            $row = array();
             list ($message, $level, $category, $time) = $log;
-            $time = date('H:i:s.', $time) . sprintf('%03d', (int)(($time - (int)$time) * 1000));
+            $row['time'] = date('H:i:s.', $time) . sprintf('%03d', (int)(($time - (int)$time) * 1000));
+            $row['category'] = $category;
+            $row['level'] = $level;
 
             $traces = array();
-            if (($lines = explode("\nStack trace:\n", $message, 2)) !== false) {
+            if (($lines = explode(PHP_EOL . 'Stack trace:' . PHP_EOL, $message, 2)) !== false) {
                 $message = $lines[0];
                 if (isset($lines[1])) {
                     $traces = array_merge(
                         array('Stack trace:'),
-                        explode("\n", $lines[1])
+                        explode(PHP_EOL, $lines[1])
                     );
-                } elseif (($lines = explode("\nin ", $message)) !== false) {
+                } elseif (($lines = explode(PHP_EOL . 'in ', $message)) !== false) {
                     $message = array_shift($lines);
                     $traces = $lines;
                 }
             }
-            $message = nl2br(CHtml::encode($message));
-            if (count($traces)) {
-                $message .= '<ul class="trace">';
-                foreach ($traces as $trace) {
-                    $message .= '<li>' . CHtml::encode($trace) . '</li>';
-                }
-                $message .= '</ul>';
-            }
+            $row['message'] = nl2br(CHtml::encode($message));
+            $row['traces'] = $traces;
 
+            $row['class'] = '';
             if ($level == CLogger::LEVEL_ERROR) {
-                $class = ' class="error"';
+                $row['class'] = 'danger';
             } elseif ($level == CLogger::LEVEL_WARNING) {
-                $class = ' class="warning"';
+                $row['class'] = 'warning';
             } elseif ($level == CLogger::LEVEL_INFO) {
-                $class = ' class="info"';
-            } else {
-                $class = '';
+                $row['class'] = 'info';
             }
-            $rows[] = '<tr ' . $class . '><td style="width: 100px;">' .
-                      $time . '</td><td style="width: 100px;">' .
-                      $level . '</td><td style="width: 250px;">' .
-                      $category . '</td><td><div style="overflow:auto">' .
-                      $message . '</div></td></tr>';
-        }
-        $rows = implode("\n", $rows);
 
-        return <<<HTML
-<table class="table table-condensed table-bordered table-striped table-hover table-filtered" style="table-layout: fixed;">
-<thead>
-<tr>
-	<th style="width: 100px;">Time</th>
-	<th style="width: 65px;">Level</th>
-	<th style="width: 250px;">Category</th>
-	<th>Message</th>
-</tr>
-</thead>
-<tbody>
-$rows
-</tbody>
-</table>
-HTML;
+            $rows[] = $row;
+        }
+
+        return Yii::app()->controller->renderPartial('panels/_logDetails', array(
+            'rows' => $rows,
+        ));
     }
 
     public function getDataToSave()

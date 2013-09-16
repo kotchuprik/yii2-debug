@@ -2,42 +2,27 @@
 /**
  * Основной компонент для подключения отладочной панели
  *
- * @property string $tag
- *
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
  * @author Constantin Chuprik <constantinchuprik@gmail.com>
+ *
+ * @property array $allowedIPs Список ip и масок, которым разрешен доступ к панели
+ * @property array|Yii2DebugPanel[] $panels
+ * @property string $logPath Путь для записи логов. По умолчанию /runtime/debug
+ * @property int $historySize Максимальное кол-во логов
+ * @property boolean $enabled
+ * @property string $modelId Id модуля для просмотра отладочной информации
+ * @property boolean $highlightCode Подсветка кода на страницах с отладочной информацией
+ *
  * @package Yii2Debug
- * @since 1.1.13
  */
 class Yii2Debug extends CApplicationComponent
 {
-    /**
-     * @var array список ip и масок, которым разрешен доступ к панели
-     */
     public $allowedIPs = array('127.0.0.1', '::1');
-    /**
-     * @var array|Yii2DebugPanel[]
-     */
     public $panels = array();
-    /**
-     * @var string путь для записи логов. По умолчанию /runtime/debug
-     */
     public $logPath;
-    /**
-     * @var int максимальное кол-во логов
-     */
     public $historySize = 50;
-    /**
-     * @var bool
-     */
     public $enabled = true;
-    /**
-     * @var string id модуля для просмотра отладочной информации
-     */
     public $moduleId = 'debug';
-    /**
-     * @var bool подсветка кода на страницах с отладочной информацией
-     */
     public $highlightCode = true;
 
     private $_tag;
@@ -50,15 +35,16 @@ class Yii2Debug extends CApplicationComponent
     public function init()
     {
         parent::init();
+
         if (!$this->enabled) {
             return null;
         }
 
-        Yii::setPathOfAlias('yii2-debug', dirname(__FILE__));
+        Yii::setPathOfAlias('yii2-debug', __DIR__);
         Yii::app()->setImport(array(
             'yii2-debug.*',
             'yii2-debug.panels.*',
-            'yii2-debug.components.*',
+            'yii2-debug.helpers.*',
         ));
 
         if ($this->logPath === null) {
@@ -68,7 +54,7 @@ class Yii2Debug extends CApplicationComponent
         foreach (array_merge($this->corePanels(), $this->panels) as $id => $config) {
             $config['id'] = $id;
             $config['tag'] = $this->getTag();
-            $config['component'] = $this;
+            $config['debugComponent'] = $this;
             if (!isset($config['highlightCode'])) {
                 $config['highlightCode'] = $this->highlightCode;
             }
@@ -78,11 +64,11 @@ class Yii2Debug extends CApplicationComponent
         Yii::app()->setModules(array_merge(Yii::app()->getModules(), array(
             $this->moduleId => array(
                 'class' => 'Yii2DebugModule',
-                'component' => $this,
+                'debugComponent' => $this,
             ),
         )));
-
         Yii::app()->attachEventHandler('onEndRequest', array($this, '_onEndRequest'));
+
         $this->initToolbar();
     }
 
@@ -130,9 +116,8 @@ class Yii2Debug extends CApplicationComponent
      */
     public function initToolbar()
     {
-        if (!$this->checkAccess() ||
-            (isset(Yii::app()->controller->module) && Yii::app()->controller->module->id == $this->moduleId)
-        ) {
+        //@TODO определение того, что мы в модуле находимся и нам не нужны эти скрипты
+        if (!$this->checkAccess()) {
             return null;
         }
 
@@ -168,6 +153,24 @@ class Yii2Debug extends CApplicationComponent
 })(jQuery);
 JS
         );
+    }
+
+    /**
+     * Проверка доступа
+     * @return bool
+     */
+    public function checkAccess()
+    {
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
+        foreach ($this->allowedIPs as $filter) {
+            if ($filter === '*' || $filter === $ip ||
+                (($pos = strpos($filter, '*')) !== false && !strncmp($ip, $filter, $pos))
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -234,23 +237,5 @@ JS
                 }
             }
         }
-    }
-
-    /**
-     * Проверка доступа
-     * @return bool
-     */
-    public function checkAccess()
-    {
-        $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
-        foreach ($this->allowedIPs as $filter) {
-            if ($filter === '*' || $filter === $ip ||
-                (($pos = strpos($filter, '*')) !== false && !strncmp($ip, $filter, $pos))
-            ) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

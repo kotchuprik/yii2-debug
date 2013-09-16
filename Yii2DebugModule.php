@@ -2,17 +2,17 @@
 /**
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
  * @author Constantin Chuprik <constantinchuprik@gmail.com>
+ *
+ * @property Yii2Debug $debugComponent
+ *
  * @package Yii2Debug
- * @since 1.1.13
  */
 class Yii2DebugModule extends CWebModule
 {
     const PACKAGE_ID = 'yii2-debug';
+    const BOOTSTRAP_PACKAGE_ID = 'yii2-debug-bootstrap';
 
-    /**
-     * @var Yii2Debug
-     */
-    public $component;
+    public $debugComponent;
 
     protected function init()
     {
@@ -23,9 +23,9 @@ class Yii2DebugModule extends CWebModule
 
     public function beforeControllerAction($controller, $action)
     {
-        if (parent::beforeControllerAction($controller, $action) && $this->component->checkAccess()) {
+        if (parent::beforeControllerAction($controller, $action) && $this->debugComponent->checkAccess()) {
             // Отключение дебагера на страницах просмотра ранее сохраненных логов
-            Yii::app()->detachEventHandler('onEndRequest', array($this->component, '_onEndRequest'));
+            Yii::app()->detachEventHandler('onEndRequest', array($this->debugComponent, '_onEndRequest'));
 
             return true;
         }
@@ -35,20 +35,29 @@ class Yii2DebugModule extends CWebModule
 
     protected function _registerScripts()
     {
-        $package = array(
-            'baseUrl' => $this->_getAssetsUrl(),
+        /** @var CClientScript $clientScript */
+        $clientScript = Yii::app()->getClientScript();
+
+        $packageBootstrap = array(
+            'baseUrl' => '//netdna.bootstrapcdn.com/bootstrap/3.0.0/',
             'js' => array(
-                YII_DEBUG ? 'js/bootstrap.js' : 'js/bootstrap.min.js',
-                'js/filter.js',
+                'js/bootstrap.min.js',
             ),
             'css' => array(
-                YII_DEBUG ? 'css/bootstrap.css' : 'css/bootstrap.min.css',
+                'css/bootstrap.min.css',
+            ),
+        );
+        $clientScript->addPackage(self::BOOTSTRAP_PACKAGE_ID, $packageBootstrap);
+
+        $package = array(
+            'baseUrl' => $this->_getAssetsUrl(),
+            'css' => array(
                 'css/main.css',
             ),
-            'depends' => array('jquery'),
+            'depends' => array('jquery', self::BOOTSTRAP_PACKAGE_ID),
         );
 
-        Yii::app()->getClientScript()->addPackage(self::PACKAGE_ID, $package)->registerPackage(self::PACKAGE_ID);
+        $clientScript->addPackage(self::PACKAGE_ID, $package)->registerPackage(self::PACKAGE_ID);
     }
 
     protected function _getAssetsUrl()

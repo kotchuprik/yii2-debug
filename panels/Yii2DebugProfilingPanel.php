@@ -2,8 +2,8 @@
 /**
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
  * @author Constantin Chuprik <constantinchuprik@gmail.com>
+ *
  * @package Yii2Debug
- * @since 1.1.13
  */
 class Yii2DebugProfilingPanel extends Yii2DebugPanel
 {
@@ -16,16 +16,12 @@ class Yii2DebugProfilingPanel extends Yii2DebugPanel
     {
         $memory = sprintf('%.1f MB', $this->data['memory'] / 1048576);
         $time = number_format($this->data['time'] * 1000) . ' ms';
-        $url = $this->getUrl();
 
-        return <<<HTML
-<div class="yii2-debug-toolbar-block">
-	<a href="$url" title="Total request processing time was $time" target="_blank">Time <span class="label">$time</span></a>
-</div>
-<div class="yii2-debug-toolbar-block">
-	<a href="$url" title="Peak memory consumption" target="_blank">Memory <span class="label">$memory</span></a>
-</div>
-HTML;
+        return Yii::app()->controller->renderPartial('panels/_profilingSummary', array(
+            'url' => $this->getUrl(),
+            'memory' => $memory,
+            'time' => $time,
+        ));
     }
 
     public function getDetails()
@@ -55,34 +51,21 @@ HTML;
 
         $rows = array();
         foreach ($timings as $timing) {
-            $time = sprintf('%.1f ms', $timing[3] * 1000);
-            $procedure = str_repeat('<span class="indent">→</span>', $timing[0]) . CHtml::encode($timing[1]);
-            $category = CHtml::encode($timing[2]);
-            $rows[] = '<tr><td style="width: 80px;">' . $time .
-                      '</td><td style="width: 220px;">' . $category .
-                      '</td><td>' . $procedure . '</td>';
+            $row = array();
+            $row['time'] = sprintf('%.1f ms', $timing[3] * 1000);
+            $row['procedure'] = str_repeat('<span class="indent">→</span>', $timing[0]) . CHtml::encode($timing[1]);
+            $row['category'] = CHtml::encode($timing[2]);
+            $rows[] = $row;
         }
-        $rows = implode(PHP_EOL, $rows);
 
         $memory = sprintf('%.1f MB', $this->data['memory'] / 1048576);
         $time = number_format($this->data['time'] * 1000) . ' ms';
 
-        return <<<HTML
-<p>Total processing time: <b>$time</b>; Peak memory: <b>$memory</b>.</p>
-
-<table class="table table-condensed table-bordered table-striped table-hover table-filtered" style="table-layout: fixed;">
-<thead>
-<tr>
-	<th style="width: 80px;">Time</th>
-	<th style="width: 220px;">Category</th>
-	<th>Procedure</th>
-</tr>
-</thead>
-<tbody>
-$rows
-</tbody>
-</table>
-HTML;
+        return Yii::app()->controller->renderPartial('panels/_profilingDetails', array(
+            'rows' => $rows,
+            'memory' => $memory,
+            'time' => $time,
+        ), true);
     }
 
     public function getDataToSave()

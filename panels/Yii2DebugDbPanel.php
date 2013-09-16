@@ -2,8 +2,8 @@
 /**
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
  * @author Constantin Chuprik <constantinchuprik@gmail.com>
+ *
  * @package Yii2Debug
- * @since 1.1.13
  */
 class Yii2DebugDbPanel extends Yii2DebugPanel
 {
@@ -30,21 +30,21 @@ class Yii2DebugDbPanel extends Yii2DebugPanel
     {
         $timings = $this->_calculateTimings();
         $queryCount = count($timings);
+        if (count($queryCount) == 0) {
+            return '';
+        }
+
         $queryTime = 0;
         foreach ($timings as $timing) {
             $queryTime += $timing[4];
         }
         $queryTime = number_format($queryTime * 1000) . ' ms';
-        $url = $this->getUrl();
-        $output = <<<HTML
-<div class="yii2-debug-toolbar-block">
-	<a href="$url" title="Executed $queryCount database queries which took $queryTime." target="_blank">
-		DB <span class="label">$queryCount</span> <span class="label">$queryTime</span>
-	</a>
-</div>
-HTML;
 
-        return $queryCount > 0 ? $output : '';
+        return Yii::app()->controller->renderPartial('panels/_dbSummary', array(
+            'queryCount' => $queryCount,
+            'queryTime' => $queryTime,
+            'url' => $this->getUrl(),
+        ));
     }
 
     public function getDetails()
@@ -56,7 +56,7 @@ HTML;
         return $this->_renderTabs(array(
             array(
                 'label' => 'Queries (' . $queriesCount . ')',
-                'content' => $this->_getQueriesDetail(),
+                'content' => $this->_getQueriesDetails(),
                 'active' => true,
             ),
             array(
@@ -96,39 +96,27 @@ HTML;
     /**
      * @return string html-контент закладки со списком sql-запросов
      */
-    protected function _getQueriesDetail()
+    protected function _getQueriesDetails()
     {
         $rows = array();
         foreach ($this->_calculateTimings() as $timing) {
+            $row = array();
             $time = $timing[3];
-            $time = date('H:i:s.', $time) . sprintf('%03d', (int)(($time - (int)$time) * 1000));
-            $duration = sprintf('%.1f ms', $timing[4] * 1000);
+            $row['time'] = date('H:i:s.', $time) . sprintf('%03d', (int)(($time - (int)$time) * 1000));
+            $row['duration'] = sprintf('%.1f ms', $timing[4] * 1000);
             $procedure = $this->_formatSql($timing[1]);
             if ($this->highlightCode) {
-                $procedure = $this->_highlightSql($procedure);
+                $row['procedure'] = $this->_highlightSql($procedure);
             } else {
-                $procedure = CHtml::encode($procedure);
+                $row['procedure'] = CHtml::encode($procedure);
             }
-            $rows[] = '<tr><td style="width: 100px;">' . $time .
-                      '</td><td style="width: 80px;">' . $duration .
-                      '</td><td><pre class="pre-scrollable yii2-debug-pre">' . $procedure . '</pre></td>';
-        }
-        $rows = implode(PHP_EOL, $rows);
 
-        return <<<HTML
-<table class="table table-condensed table-bordered table-striped table-hover table-filtered" style="table-layout: fixed;">
-<thead>
-<tr>
-	<th style="width: 100px;">Time</th>
-	<th style="width: 80px;">Duration</th>
-	<th>Query</th>
-</tr>
-</thead>
-<tbody>
-$rows
-</tbody>
-</table>
-HTML;
+            $rows[] = $row;
+        }
+
+        return Yii::app()->controller->renderPartial('panels/_dbQueriesDetails', array(
+            'rows' => $rows,
+        ), true);
     }
 
     /**
@@ -137,51 +125,26 @@ HTML;
     protected function _getResumeDetail()
     {
         $rows = array();
-        $num = 0;
         foreach ($this->_calculateResume() as $item) {
-            $num++;
+            $row = array();
             list($query, $count, $total, $min, $max) = $item;
             if ($this->highlightCode) {
-                $query = $this->_highlightSql($query);
+                $row['query'] = $this->_highlightSql($query);
             } else {
-                $query = CHtml::encode($query);
+                $row['query'] = CHtml::encode($query);
             }
-            $avg = sprintf('%.1f ms', $total * 1000 / $count);
-            $total = sprintf('%.1f ms', $total * 1000);
-            $min = sprintf('%.1f ms', $min * 1000);
-            $max = sprintf('%.1f ms', $max * 1000);
-            $rows[] = <<<HTML
-<tr>
-	<td style="width:30px;">$num</td>
-	<td><pre class="pre-scrollable yii2-debug-pre">$query</pre></td>
-	<td style="width:50px;">$count</td>
-	<td style="width:70px;">$total</td>
-	<td style="width:70px;">$avg</td>
-	<td style="width:70px;">$min</td>
-	<td style="width:70px;">$max</td>
-</tr>
-HTML;
-        }
-        $rows = implode(PHP_EOL, $rows);
+            $row['count'] = $count;
+            $row['avg'] = sprintf('%.1f ms', $total * 1000 / $count);
+            $row['total'] = sprintf('%.1f ms', $total * 1000);
+            $row['min'] = sprintf('%.1f ms', $min * 1000);
+            $row['max'] = sprintf('%.1f ms', $max * 1000);
 
-        return <<<HTML
-<table class="table table-condensed table-bordered table-striped table-hover table-filtered" style="table-layout: fixed;">
-<thead>
-<tr>
-	<th style="width:30px;">#</th>
-	<th>Query</th>
-	<th style="width:50px;">Count</th>
-	<th style="width:70px;">Total</th>
-	<th style="width:70px;">Avg</th>
-	<th style="width:70px;">Min</th>
-	<th style="width:70px;">Max</th>
-</tr>
-</thead>
-<tbody>
-$rows
-</tbody>
-</table>
-HTML;
+            $rows[] = $row;
+        }
+
+        return Yii::app()->controller->renderPartial('panels/_dbResumeDetails', array(
+            'rows' => $rows,
+        ), true);
     }
 
     /**

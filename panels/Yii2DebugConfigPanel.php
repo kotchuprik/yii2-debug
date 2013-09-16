@@ -2,8 +2,8 @@
 /**
  * @author Roman Zhuravlev <zhuravljov@gmail.com>
  * @author Constantin Chuprik <constantinchuprik@gmail.com>
+ *
  * @package Yii2Debug
- * @since 1.1.13
  */
 class Yii2DebugConfigPanel extends Yii2DebugPanel
 {
@@ -19,17 +19,11 @@ class Yii2DebugConfigPanel extends Yii2DebugPanel
 
     public function getSummary()
     {
-        $yiiLogo = $this->getYiiLogo();
-        $url = $this->getUrl();
-
-        return <<<HTML
-<div class="yii2-debug-toolbar-block">
-	<a href="$url" target="_blank">
-		<img width="29" height="30" alt="" src="$yiiLogo">
-		<span>{$this->data['application']['yii']}</span>
-	</a>
-</div>
-HTML;
+        return Yii::app()->controller->renderPartial('panels/_configSummary', array(
+            'yiiLogo' => $this->getYiiLogo(),
+            'data' => $this->data['application']['yii'],
+            'url' => $this->getUrl(),
+        ), true);
     }
 
     public function getDetails()

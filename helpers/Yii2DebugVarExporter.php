@@ -1,8 +1,8 @@
 <?php
 /**
  * @author Constantin Chuprik <constantinchuprik@gmail.com>
+ *
  * @package Yii2Debug
- * @since 1.1.13
  */
 class Yii2DebugVarExporter
 {
