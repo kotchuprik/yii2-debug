@@ -73,7 +73,7 @@ class Yii2DebugVarExporter
                     $className = get_class($var);
                     $members = (array)$var;
                     $spaces = str_repeat(' ', $level * 4);
-                    self::$_output .= "$className#$id\n" . $spaces . '(';
+                    self::$_output .= $className . '#' . $id . PHP_EOL . $spaces . '(';
                     foreach ($members as $key => $value) {
                         $keyDisplay = strtr(trim($key), array("\0" => ':'));
                         self::$_output .= PHP_EOL . $spaces . '    [' . $keyDisplay . '] => ';

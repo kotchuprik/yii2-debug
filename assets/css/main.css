@@ -155,3 +155,11 @@ pre.yii2-debug-pre {
     padding: 0;
     margin: 0;
 }
+
+.phpinfo-table {
+    table-layout: fixed;
+}
+
+.phpinfo-table td {
+    word-break: break-all;
+}

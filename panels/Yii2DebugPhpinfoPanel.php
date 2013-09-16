@@ -71,7 +71,7 @@ class Yii2DebugPhpinfoPanel extends Yii2DebugPanel
         // Add css classes to tables
         $phpinfo = preg_replace(
             '/table/si',
-            'table class="table table-condensed table-bordered table-striped table-hover" style="table-layout: fixed;"',
+            'table class="table table-condensed table-bordered table-striped table-hover phpinfo-table"',
             $phpinfo
         );
 
